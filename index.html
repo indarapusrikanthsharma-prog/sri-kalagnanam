@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sri Kalagnanam</title>
+
+<style>
+body{
+  margin:0;
+  font-family:sans-serif;
+  background:#0d1b2a;
+  color:#ffcc00;
+  text-align:center;
+}
+
+.header{
+  padding:20px;
+}
+
+.card{
+  background:#1b263b;
+  margin:20px;
+  padding:20px;
+  border-radius:15px;
+  box-shadow:0 0 20px rgba(0,0,0,0.4);
+}
+
+input,button{
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+  margin-top:10px;
+}
+
+button{
+  background:#ff6600;
+  color:white;
+}
+
+.footer{
+  margin-top:40px;
+  padding:20px;
+  font-size:14px;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h1>🕉️ శ్రీ కాలజ్ఞానం</h1>
+<p>Sri Veda Gayathri Vedic Services</p>
+<p>Indarapu Srikanth Sharma</p>
+</div>
+
+<div class="card">
+<h3>Select Date</h3>
+<input type="date" id="dateInput">
+<br>
+<button onclick="getLocation()">Detect Location & Show Panchang</button>
+</div>
+
+<div class="card" id="result">
+<h3>Panchang Details</h3>
+<p>Select date and detect location.</p>
+</div>
+
+<div class="footer">
+📞 7989861630 | Sirpur-T, Telangana
+</div>
+
+<script>
+
+function getLocation(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    alert("Geolocation not supported.");
+  }
+}
+
+function showPosition(position){
+  let lat = position.coords.latitude;
+  let lon = position.coords.longitude;
+  let date = document.getElementById("dateInput").value;
+
+  fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${date}`)
+  .then(response => response.json())
+  .then(data => {
+
+    document.getElementById("result").innerHTML =
+    "<h3>Panchang for "+date+"</h3>"+
+    "<p><b>Latitude:</b> "+lat+"</p>"+
+    "<p><b>Longitude:</b> "+lon+"</p>"+
+    "<p><b>Sunrise:</b> "+data.results.sunrise+"</p>"+
+    "<p><b>Sunset:</b> "+data.results.sunset+"</p>"+
+    "<p>Global Panchang engine phase 1 active 🔱</p>";
+
+  });
+}
+
+</script>
+
+</body>
+</html>
