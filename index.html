@@ -73,18 +73,29 @@ button{
 
 <script>
 
-function getLocation(){
-  if(navigator.geolocation){
+function detectLocation() {
+
+  if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(showPosition);
   } else {
     alert("Geolocation not supported.");
   }
+
 }
 
-function showPosition(position){
+function showPosition(position) {
+
   let lat = position.coords.latitude;
   let lon = position.coords.longitude;
+
   let date = document.getElementById("dateInput").value;
+
+  if (!date) {
+    alert("Please select date");
+    return;
+  }
+
+  let selectedDate = new Date(date);
 
   fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${date}&formatted=0`)
   .then(response => response.json())
@@ -96,39 +107,42 @@ function showPosition(position){
     let sunriseLocal = sunriseUTC.toLocaleTimeString();
     let sunsetLocal = sunsetUTC.toLocaleTimeString();
 
-let sunrise = sunriseUTC;
-let sunset = sunsetUTC;
+    // -------- RAHU KALAM CALCULATION --------
 
-let dayDuration = (sunset - sunrise) / 8;
+    let sunrise = sunriseUTC;
+    let sunset = sunsetUTC;
 
-let weekdayIndex = selectedDate.getDay(); // 0 = Sunday
+    let dayDuration = (sunset - sunrise) / 8;
 
-let rahuMap = [7,1,6,4,5,3,2]; 
-let rahuPart = rahuMap[weekdayIndex];
+    let weekdayIndex = selectedDate.getDay(); // 0 = Sunday
 
-let rahuStart = new Date(sunrise.getTime() + dayDuration * rahuPart);
-let rahuEnd = new Date(rahuStart.getTime() + dayDuration);
+    let rahuMap = [7,1,6,4,5,3,2];
+    let rahuPart = rahuMap[weekdayIndex];
 
-let rahuStartLocal = rahuStart.toLocaleTimeString();
-let rahuEndLocal = rahuEnd.toLocaleTimeString();
+    let rahuStart = new Date(sunrise.getTime() + dayDuration * rahuPart);
+    let rahuEnd = new Date(rahuStart.getTime() + dayDuration);
 
-    let selectedDate = new Date(date);
+    let rahuStartLocal = rahuStart.toLocaleTimeString();
+    let rahuEndLocal = rahuEnd.toLocaleTimeString();
+
+    // -------- DISPLAY --------
+
     let weekday = selectedDate.toLocaleDateString(undefined, { weekday: 'long' });
 
     document.getElementById("result").innerHTML =
-    "<h3>Panchang for "+date+"</h3>"+
-    "<p><b>Day:</b> "+weekday+"</p>"+
-    "<p><b>Latitude:</b> "+lat+"</p>"+
-    "<p><b>Longitude:</b> "+lon+"</p>"+
-    "<p><b>Sunrise:</b> "+sunriseLocal+"</p>"+
-"<p><b>Sunset:</b> "+sunsetLocal+"</p>"+
-"<p><b>Rahu Kalam:</b> "+rahuStartLocal+" - "+rahuEndLocal+"</p>"+
-"<p>Global Panchang engine phase 2 active 🔱</p>";
+      "<h3>Panchang for "+date+"</h3>"+
+      "<p><b>Day:</b> "+weekday+"</p>"+
+      "<p><b>Latitude:</b> "+lat+"</p>"+
+      "<p><b>Longitude:</b> "+lon+"</p>"+
+      "<p><b>Sunrise:</b> "+sunriseLocal+"</p>"+
+      "<p><b>Sunset:</b> "+sunsetLocal+"</p>"+
+      "<p><b>Rahu Kalam:</b> "+rahuStartLocal+" - "+rahuEndLocal+"</p>"+
+      "<p>Global Panchang engine phase 2 active 🔱</p>";
 
   });
+
 }
 
 </script>
-
 </body>
 </html>
