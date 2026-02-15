@@ -86,17 +86,27 @@ function showPosition(position){
   let lon = position.coords.longitude;
   let date = document.getElementById("dateInput").value;
 
-  fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${date}`)
+  fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${date}&formatted=0`)
   .then(response => response.json())
   .then(data => {
 
+    let sunriseUTC = new Date(data.results.sunrise);
+    let sunsetUTC = new Date(data.results.sunset);
+
+    let sunriseLocal = sunriseUTC.toLocaleTimeString();
+    let sunsetLocal = sunsetUTC.toLocaleTimeString();
+
+    let selectedDate = new Date(date);
+    let weekday = selectedDate.toLocaleDateString(undefined, { weekday: 'long' });
+
     document.getElementById("result").innerHTML =
     "<h3>Panchang for "+date+"</h3>"+
+    "<p><b>Day:</b> "+weekday+"</p>"+
     "<p><b>Latitude:</b> "+lat+"</p>"+
     "<p><b>Longitude:</b> "+lon+"</p>"+
-    "<p><b>Sunrise:</b> "+data.results.sunrise+"</p>"+
-    "<p><b>Sunset:</b> "+data.results.sunset+"</p>"+
-    "<p>Global Panchang engine phase 1 active 🔱</p>";
+    "<p><b>Sunrise:</b> "+sunriseLocal+"</p>"+
+    "<p><b>Sunset:</b> "+sunsetLocal+"</p>"+
+    "<p>Global Panchang engine phase 2 active 🔱</p>";
 
   });
 }
