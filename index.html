@@ -1,148 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
 <title>Sri Kalagnanam</title>
-
 <style>
 body{
-  margin:0;
-  font-family:sans-serif;
-  background:#0d1b2a;
-  color:#ffcc00;
-  text-align:center;
+    font-family: Arial;
+    background: linear-gradient(to bottom,#0f2027,#203a43,#2c5364);
+    color:white;
+    text-align:center;
+    padding:20px;
 }
-
-.header{
-  padding:20px;
-}
-
 .card{
-  background:#1b263b;
-  margin:20px;
-  padding:20px;
-  border-radius:15px;
-  box-shadow:0 0 20px rgba(0,0,0,0.4);
+    background:#1e2a38;
+    padding:20px;
+    border-radius:15px;
+    margin:20px auto;
+    width:90%;
+    max-width:500px;
+    box-shadow:0 0 20px rgba(0,0,0,0.4);
 }
-
-input,button{
-  padding:10px;
-  border-radius:8px;
-  border:none;
-  font-size:16px;
-  margin-top:10px;
-}
-
 button{
-  background:#ff6600;
-  color:white;
+    padding:12px 20px;
+    background:orange;
+    border:none;
+    border-radius:10px;
+    font-size:16px;
+    cursor:pointer;
 }
-
-.footer{
-  margin-top:40px;
-  padding:20px;
-  font-size:14px;
-  color:white;
+input{
+    padding:10px;
+    border-radius:8px;
+    border:none;
+    margin-bottom:10px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-<h1>🕉️ శ్రీ కాలజ్ఞానం</h1>
-<p>Sri Veda Gayathri Vedic Services</p>
+<h1>🔱 శ్రీ కాలజ్ఞానం 🔱</h1>
+<h3>Sri Veda Gayathri Vedic Services</h3>
 <p>Indarapu Srikanth Sharma</p>
+
+<div class="card">
+<h2>Select Date</h2>
+<input type="date" id="dateInput"><br>
+<button onclick="detectLocation()">Detect Location & Show Panchang</button>
 </div>
 
 <div class="card">
-<h3>Select Date</h3>
-<input type="date" id="dateInput">
-<br>
-<button onclick="getLocation()">Detect Location & Show Panchang</button>
+<div id="result">Select date and detect location.</div>
 </div>
 
-<div class="card" id="result">
-<h3>Panchang Details</h3>
-<p>Select date and detect location.</p>
-</div>
-
-<div class="footer">
-📞 7989861630 | Sirpur-T, Telangana
-</div>
+<p>📞 7989861630 | Sirpur-T, Telangana</p>
 
 <script>
 
-function detectLocation() {
-
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition);
-  } else {
-    alert("Geolocation not supported.");
-  }
-
+function detectLocation(){
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(showPosition);
+    }else{
+        alert("Geolocation not supported.");
+    }
 }
 
-function showPosition(position) {
+function showPosition(position){
 
-  let lat = position.coords.latitude;
-  let lon = position.coords.longitude;
+let lat = position.coords.latitude;
+let lon = position.coords.longitude;
+let date = document.getElementById("dateInput").value;
 
-  let date = document.getElementById("dateInput").value;
-
-  if (!date) {
+if(!date){
     alert("Please select date");
     return;
-  }
+}
 
-  let selectedDate = new Date(date);
+fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${date}&formatted=0`)
+.then(response => response.json())
+.then(data => {
 
-  fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lon}&date=${date}&formatted=0`)
-  .then(response => response.json())
-  .then(data => {
+let sunriseUTC = new Date(data.results.sunrise);
+let sunsetUTC = new Date(data.results.sunset);
 
-    let sunriseUTC = new Date(data.results.sunrise);
-    let sunsetUTC = new Date(data.results.sunset);
+let sunrise = new Date(sunriseUTC);
+let sunset = new Date(sunsetUTC);
 
-    let sunriseLocal = sunriseUTC.toLocaleTimeString();
-    let sunsetLocal = sunsetUTC.toLocaleTimeString();
+let sunriseLocal = sunrise.toLocaleTimeString();
+let sunsetLocal = sunset.toLocaleTimeString();
 
-    // -------- RAHU KALAM CALCULATION --------
+let dayDuration = (sunset - sunrise)/8;
 
-    let sunrise = sunriseUTC;
-    let sunset = sunsetUTC;
+let selectedDate = new Date(date);
+let weekdayIndex = selectedDate.getDay();
+let weekday = selectedDate.toLocaleDateString(undefined,{weekday:'long'});
 
-    let dayDuration = (sunset - sunrise) / 8;
+/* Rahu */
+let rahuMap = [7,1,6,4,5,3,2];
+let rahuStart = new Date(sunrise.getTime() + dayDuration * rahuMap[weekdayIndex]);
+let rahuEnd = new Date(rahuStart.getTime() + dayDuration);
 
-    let weekdayIndex = selectedDate.getDay(); // 0 = Sunday
+/* Yamagandam */
+let yamaMap = [4,3,2,1,0,6,5];
+let yamaStart = new Date(sunrise.getTime() + dayDuration * yamaMap[weekdayIndex]);
+let yamaEnd = new Date(yamaStart.getTime() + dayDuration);
 
-    let rahuMap = [7,1,6,4,5,3,2];
-    let rahuPart = rahuMap[weekdayIndex];
+/* Gulika */
+let gulikaMap = [6,5,4,3,2,1,0];
+let gulikaStart = new Date(sunrise.getTime() + dayDuration * gulikaMap[weekdayIndex]);
+let gulikaEnd = new Date(gulikaStart.getTime() + dayDuration);
 
-    let rahuStart = new Date(sunrise.getTime() + dayDuration * rahuPart);
-    let rahuEnd = new Date(rahuStart.getTime() + dayDuration);
+/* Abhijit Muhurtham (midday 48 mins approx) */
+let midday = new Date((sunrise.getTime()+sunset.getTime())/2);
+let abhijitStart = new Date(midday.getTime() - 24*60000);
+let abhijitEnd = new Date(midday.getTime() + 24*60000);
 
-    let rahuStartLocal = rahuStart.toLocaleTimeString();
-    let rahuEndLocal = rahuEnd.toLocaleTimeString();
+document.getElementById("result").innerHTML =
 
-    // -------- DISPLAY --------
+"<h3>Panchang for "+date+"</h3>"+
+"<p><b>Day:</b> "+weekday+"</p>"+
+"<p><b>Latitude:</b> "+lat.toFixed(4)+"</p>"+
+"<p><b>Longitude:</b> "+lon.toFixed(4)+"</p>"+
+"<p><b>Sunrise:</b> "+sunriseLocal+"</p>"+
+"<p><b>Sunset:</b> "+sunsetLocal+"</p>"+
 
-    let weekday = selectedDate.toLocaleDateString(undefined, { weekday: 'long' });
+"<hr>"+
 
-    document.getElementById("result").innerHTML =
-      "<h3>Panchang for "+date+"</h3>"+
-      "<p><b>Day:</b> "+weekday+"</p>"+
-      "<p><b>Latitude:</b> "+lat+"</p>"+
-      "<p><b>Longitude:</b> "+lon+"</p>"+
-      "<p><b>Sunrise:</b> "+sunriseLocal+"</p>"+
-      "<p><b>Sunset:</b> "+sunsetLocal+"</p>"+
-      "<p><b>Rahu Kalam:</b> "+rahuStartLocal+" - "+rahuEndLocal+"</p>"+
-      "<p>Global Panchang engine phase 2 active 🔱</p>";
+"<p><b>Rahu Kalam:</b> "+rahuStart.toLocaleTimeString()+" - "+rahuEnd.toLocaleTimeString()+"</p>"+
+"<p><b>Yamagandam:</b> "+yamaStart.toLocaleTimeString()+" - "+yamaEnd.toLocaleTimeString()+"</p>"+
+"<p><b>Gulika Kalam:</b> "+gulikaStart.toLocaleTimeString()+" - "+gulikaEnd.toLocaleTimeString()+"</p>"+
+"<p><b>Abhijit Muhurtham:</b> "+abhijitStart.toLocaleTimeString()+" - "+abhijitEnd.toLocaleTimeString()+"</p>"+
 
-  });
+"<hr>"+
+"<p>🌍 Global Panchang Engine Phase 3 Active 🔱</p>";
 
+});
 }
 
 </script>
+
 </body>
 </html>
