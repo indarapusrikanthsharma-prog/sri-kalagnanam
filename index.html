@@ -96,6 +96,22 @@ function showPosition(position){
     let sunriseLocal = sunriseUTC.toLocaleTimeString();
     let sunsetLocal = sunsetUTC.toLocaleTimeString();
 
+let sunrise = sunriseUTC;
+let sunset = sunsetUTC;
+
+let dayDuration = (sunset - sunrise) / 8;
+
+let weekdayIndex = selectedDate.getDay(); // 0 = Sunday
+
+let rahuMap = [7,1,6,4,5,3,2]; 
+let rahuPart = rahuMap[weekdayIndex];
+
+let rahuStart = new Date(sunrise.getTime() + dayDuration * rahuPart);
+let rahuEnd = new Date(rahuStart.getTime() + dayDuration);
+
+let rahuStartLocal = rahuStart.toLocaleTimeString();
+let rahuEndLocal = rahuEnd.toLocaleTimeString();
+
     let selectedDate = new Date(date);
     let weekday = selectedDate.toLocaleDateString(undefined, { weekday: 'long' });
 
@@ -105,8 +121,9 @@ function showPosition(position){
     "<p><b>Latitude:</b> "+lat+"</p>"+
     "<p><b>Longitude:</b> "+lon+"</p>"+
     "<p><b>Sunrise:</b> "+sunriseLocal+"</p>"+
-    "<p><b>Sunset:</b> "+sunsetLocal+"</p>"+
-    "<p>Global Panchang engine phase 2 active 🔱</p>";
+"<p><b>Sunset:</b> "+sunsetLocal+"</p>"+
+"<p><b>Rahu Kalam:</b> "+rahuStartLocal+" - "+rahuEndLocal+"</p>"+
+"<p>Global Panchang engine phase 2 active 🔱</p>";
 
   });
 }
